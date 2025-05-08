@@ -1,53 +1,27 @@
-import { useState } from "react"
+import { useState,useRef } from "react"
 import "./App.css"
 import axios from "axios"
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
 import QrCode from "./QrCode"
 import QrReader from "./QrReader"
+
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Hero from './components/Hero';
+import ClassificationForm from './components/ClassificationForm';
+
 function App() {
-  const [title, setTitle] = useState("")
-  const [text, setText] = useState("")
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [titleError, setTitleError] = useState("")
-  const [textError, setTextError] = useState("")
+  
+  const [showForm, setShowForm] = useState(false);
+  const formRef = useRef(null);
 
-  const handleSubmit = async () => {
-    // Reset error states
-    setTitleError("")
-    setTextError("")
-
-    // Validate inputs
-    let isValid = true
-
-    if (!title.trim()) {
-      setTitleError("Please enter a news title")
-      isValid = false
-    }
-
-    if (!text.trim()) {
-      setTextError("Please enter news content")
-      isValid = false
-    }
-
-    if (!isValid) return
-
-    setLoading(true)
-    try {
-      const res = await axios.post("http://localhost:5000/predict", {
-        title: title,
-        text: text,
-        model: "tfidf", // or "bert"
-      })
-      console.log(res.data)
-      setResult(res.data.prediction)
-    } catch (error) {
-      console.error("Error:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
+  const handleTryItOut = () => {
+    setShowForm(true);
+    // Scroll to form after a small delay to allow animation
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
   return (
     <>
       
@@ -56,98 +30,56 @@ function App() {
       <Routes>
         <Route path="/" element={
           <>
-            <div className="bg-gradient-to-b from-gray-900 to-gray-800 text-white min-h-screen flex flex-col items-center justify-center p-4">
-      <div className="max-w-3xl w-full bg-gray-800 rounded-xl shadow-2xl p-8 border border-gray-700">
-        <h1 className="text-3xl font-bold text-center mb-8 text-blue-400">News Classification</h1>
-
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <label htmlFor="title" className="text-sm font-medium text-gray-300 block">
-              News Title
-            </label>
-            <input
-              className={`w-full bg-gray-700 text-white p-3 rounded-lg border ${
-                titleError ? "border-red-500" : "border-gray-600"
-              } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 shadow-sm`}
-              placeholder="Enter a descriptive news title..."
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            {titleError && <p className="mt-1 text-red-400 text-sm font-medium">{titleError}</p>}
+            <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+      <Header />
+      
+      <main className="flex-grow">
+        <Hero onTryItOut={handleTryItOut} />
+        
+        {showForm && (
+          <div 
+            ref={formRef}
+            className="py-16 px-4 bg-gradient-to-b from-gray-800 to-gray-900"
+          >
+            <ClassificationForm />
           </div>
-
-          <div className="space-y-2">
-            <label htmlFor="newsText" className="text-sm font-medium text-gray-300 block">
-              News Content
-            </label>
-            <textarea
-              id="newsText"
-              placeholder="Enter the full news article text here..."
-              className={`w-full bg-gray-700 text-white p-3 rounded-lg border ${
-                textError ? "border-red-500" : "border-gray-600"
-              } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 min-h-[150px] shadow-sm`}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            />
-            {textError && <p className="mt-1 text-red-400 text-sm font-medium">{textError}</p>}
+        )}
+        
+        <section id="about" className="py-16 px-4 bg-gray-900">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-6 text-white">About Our Technology</h2>
+            <p className="text-gray-300 mb-8 leading-relaxed">
+              Our news classification system utilizes advanced machine learning algorithms to analyze
+              and categorize news articles based on their content. By examining both the title and
+              body of an article, our system can accurately determine the most appropriate category
+              for any piece of news.
+            </p>
+            <p className="text-gray-300 leading-relaxed">
+              Whether you're a journalist, researcher, or just curious about news categorization,
+              our tool provides instant, accurate classification to help you understand and organize
+              information more effectively.
+            </p>
           </div>
-
-          <div className="flex justify-center mt-6">
-            <button
-              className={`px-6 py-3 rounded-lg font-medium cursor-pointer transition duration-200 shadow-lg ${
-                loading ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
-              }`}
-              onClick={handleSubmit}
-              disabled={loading}
+        </section>
+        
+        <section id="contact" className="py-16 px-4 bg-gradient-to-b from-gray-900 to-gray-800">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-6 text-white">Contact Us</h2>
+            <p className="text-gray-300 mb-8">
+              Have questions about our news classification technology or need assistance?
+              We're here to help!
+            </p>
+            <a 
+              href="mailto:contact@newsclassifier.ai"
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-all duration-300"
             >
-              {loading ? (
-                <span className="flex items-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Processing...
-                </span>
-              ) : (
-                "Classify News"
-              )}
-            </button>
+              Get in Touch
+            </a>
           </div>
-
-          {result && (
-            <div className="mt-8 p-4 bg-gray-700 rounded-lg border border-gray-600 shadow-inner">
-              <h2 className="text-lg font-medium text-gray-300 mb-2">Classification Result</h2>
-              <div className="flex items-center justify-between">
-                <span className="text-xl font-bold text-blue-400">{result}</span>
-                <span className="px-3 py-1 bg-blue-900 text-blue-200 rounded-full text-xs font-medium">Prediction</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-8 text-center text-xs text-gray-500">
-          <p>This tool uses machine learning to classify news articles.</p>
-          <p>Enter a title and content to get started.</p>
-        </div>
-      </div>
+        </section>
+      </main>
+      
+      <Footer />
     </div>
           </>
         } />
