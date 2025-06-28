@@ -2,8 +2,6 @@ import { useState,useRef } from "react"
 import "./App.css"
 import axios from "axios"
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
-import QrCode from "./QrCode"
-import QrReader from "./QrReader"
 
 import Header from './components/Header';
 import Footer from './components/Footer';
