@@ -81,9 +81,6 @@ function App() {
     </div>
           </>
         } />
-        <Route path="/qr" element={<QrCode/>} />
-        <Route path="/read" element={<QrReader/>} />
-
       </Routes>
     </Router>
 
